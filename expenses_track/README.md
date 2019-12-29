@@ -1,6 +1,6 @@
 # expenses_track
 
-Track and Manage your montly expenses
+Track and Manage your monthly expenses
 
 ## Getting Started
 

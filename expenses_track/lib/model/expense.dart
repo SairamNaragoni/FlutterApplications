@@ -1,16 +1,16 @@
-import 'package:expenses_track/model/category.dart';
 import 'package:intl/intl.dart';
 
 class Expense{
-
-  final int id;
-  final double amount;
-  final DateTime date;
-  final Category category;
-  final String notes;
+  int id;
+  double amount;
+  DateTime date;
+  String category;
+  String notes;
   static final columns = ['id', 'amount', 'date', 'category','notes'];
 
   Expense(this.id,this.amount,this.date,this.category,this.notes);
+  Expense.empty();
+  Expense.cate(this.category);
 
   String get formattedDate {
     var formatter = new DateFormat('yyyy-MM-dd');
@@ -20,7 +20,7 @@ class Expense{
   Map<String, dynamic> toMap() => {
       "id":id,
       "amount":amount,
-      "date":date.toString(),
+      "date":formattedDate.toString(),
       "category":category,
       "notes":notes,
   };
@@ -33,5 +33,10 @@ class Expense{
       data['category'],
       data['notes'],
     );
+  }
+
+  @override
+  String toString() {
+    return 'Expense{id: $id, amount: $amount, date: $formattedDate, category: $category, notes: $notes}';
   }
 }

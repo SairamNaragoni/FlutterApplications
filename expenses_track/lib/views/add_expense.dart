@@ -1,4 +1,5 @@
 import 'package:expenses_track/model/expense.dart';
+import 'package:expenses_track/utils/date_utils.dart';
 import 'package:expenses_track/utils/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -13,21 +14,6 @@ class _AddExpenseState extends State<AddExpense> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final boxSpace = SizedBox(height: 24,);
   static final categories = ['food','entertainment','shopping','household','travel','investments','transfers','others'];
-
-  DateTime _date = DateTime.now();
-  Future<Null> _selectDate(BuildContext context) async{
-    final DateTime _selected = await showDatePicker(
-      context: context,
-      initialDate: _date,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (_selected != null && _selected != _date)
-      setState(() {
-        _date = _selected;
-        expense.date = _date;
-      });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,16 +52,26 @@ class _AddExpenseState extends State<AddExpense> {
                 fillColor: Colors.white,
               ),
               keyboardType: TextInputType.text,
-              maxLines: 2,
               onSaved: (String value){
                 expense.notes = value;
               },
             ),
             boxSpace,
-            OutlineButton.icon(
-              label: Text("Date : " + expense.formattedDate),
-              icon: Icon(Icons.date_range),
-              onPressed: () => _selectDate(context),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                FlatButton.icon(
+                  padding: EdgeInsets.all(0),
+                  label: Text(
+                    "Change Date : " + expense.formattedDate.toString(),
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  icon: Icon(Icons.date_range),
+                  onPressed: () => DateUtils.selectDate(context),
+                ),
+              ],
             ),
             boxSpace,
             Container(
@@ -91,7 +87,7 @@ class _AddExpenseState extends State<AddExpense> {
                 icon: Icon(Icons.keyboard_arrow_down),
                 iconSize: 24,
                 style: TextStyle(
-                  color: Colors.deepPurple,
+                  color: Colors.indigoAccent,
                   fontSize: 20,
                 ),
 //                underline: Container(

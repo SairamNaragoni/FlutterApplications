@@ -9,8 +9,13 @@ class Expense{
   static final columns = ['id', 'amount', 'date', 'category','notes'];
 
   Expense(this.id,this.amount,this.date,this.category,this.notes);
-  Expense.empty();
-  Expense.cate(this.category);
+
+  Expense.empty():
+      this.date = DateTime.now();
+
+  Expense.cate(String category):
+      this.category = category,
+      this.date = DateTime.now();
 
   String get formattedDate {
     var formatter = new DateFormat('yyyy-MM-dd');

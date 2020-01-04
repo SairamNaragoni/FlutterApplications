@@ -1,36 +1,29 @@
+import 'package:expenses_track/views/expenses.dart';
 import 'package:flutter/material.dart';
+import 'views/add_expense.dart';
 
-class MyStatefulWidget extends StatefulWidget {
-  MyStatefulWidget({Key key}) : super(key: key);
-
+class ExpensesTrackHome extends StatefulWidget {
+  ExpensesTrackHome({Key key}) : super(key: key);
   @override
-  _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
+  _ExpensesTrackHomeState createState() => _ExpensesTrackHomeState();
 }
 
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+class _ExpensesTrackHomeState extends State<ExpensesTrackHome> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Home',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 1: Business',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 2: School',
-      style: optionStyle,
-    ),
-  ];
 
+  Widget _getView(){
+    switch(_selectedIndex){
+      case 0: return Expenses().getSummaryView();
+      case 1: return AddExpense();
+      case 2: return Text('Under Progress !!');
+    }
+  }
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-
   @override
   Widget build(BuildContext context) {
       return Scaffold(
@@ -39,28 +32,26 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         titleSpacing: 25,
         elevation: 0.7,
       ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assessment),
-            title: Text('Summary'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle),
-            title: Text('Add'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            title: Text('Calender'),
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.indigo,
-        onTap: _onItemTapped,
-      ),
-    );
+      body: _getView(),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.assessment),
+              title: Text('Summary'),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add_circle),
+              title: Text('Add'),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_today),
+              title: Text('Calender'),
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.indigo,
+          onTap: _onItemTapped,
+        ),
+      );
   }
 }

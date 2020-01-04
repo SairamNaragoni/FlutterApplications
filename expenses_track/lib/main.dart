@@ -10,11 +10,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Expenses Track',
-      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.indigo,
       ),
-      home: MyStatefulWidget(),
+      home: ExpensesTrackHome(),
     );
   }
 }

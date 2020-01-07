@@ -6,6 +6,14 @@ class Utils{
     width: 30,
     height: 30,
   );
+  static snackBar(String text) => SnackBar(
+    duration: Duration(milliseconds: 1400),
+    content: Text(text),
+  );
+
+  static bool equalsIgnoreCase(String s1, String s2) {
+    return s1?.toLowerCase() == s2?.toLowerCase();
+  }
 
   static textPlaceHolder({String text="No Data Available"}){
     return Center(child : Text(

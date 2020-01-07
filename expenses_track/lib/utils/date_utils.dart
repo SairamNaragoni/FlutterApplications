@@ -5,7 +5,7 @@ class DateUtils{
   static Future<DateTime> selectDate(BuildContext context,DateTime initialDate) async{
     return await showDatePicker(
       context: context,
-      initialDate: initialDate == null ? DateTime.now() : initialDate,
+      initialDate: initialDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );

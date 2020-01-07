@@ -1,6 +1,7 @@
 import 'package:expenses_track/database/db_scripts.dart';
 import 'package:expenses_track/model/expense.dart';
 import 'package:expenses_track/utils/date_utils.dart';
+import 'package:expenses_track/views/add_expense.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expenses_track/utils/utils.dart';
@@ -11,29 +12,45 @@ class Expenses extends StatefulWidget{
 }
 
 class ExpensesState extends State<Expenses>{
-  static DateTime date = DateTime.now();
-  Future<List<Expense>> _expensesList =  ExpensesTrackDb.db.getAllExpensesByDate(DateUtils.formattedDate(date));
+  static DateTime _date = DateTime.now();
+  Future<List<Expense>> _expensesList =  ExpensesTrackDb.db.getAllExpensesByDate(DateUtils.formattedDate(_date));
   
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            Icon(Icons.arrow_back_ios),
+            FlatButton.icon(
+              onPressed: (){
+                _date = _date.subtract(Duration(days: 1));
+                _refreshExpenses();
+              },
+              icon: Icon(Icons.arrow_back_ios),
+              label: Text(""),
+              splashColor: Colors.indigo,
+            ),
             RaisedButton.icon(
-              icon: Icon(Icons.calendar_today),
+              icon: Icon(Icons.date_range),
               label: Text(
-                DateUtils.formattedDate(date),
+                DateUtils.formattedDate(_date),
                 style: TextStyle(
                     fontSize: 20,
-                    color:Colors.indigoAccent
                 ),
               ),
               onPressed: () => _datePicker(context),
             ),
-            Icon(Icons.arrow_forward_ios),
+            FlatButton.icon(
+              onPressed: (){
+                _date = _date.add(Duration(days: 1));
+                _refreshExpenses();
+              },
+              icon: Icon(Icons.arrow_forward_ios),
+              label: Text(""),
+              splashColor: Colors.indigo,
+            ),
           ],
         ),
         Expanded(
@@ -43,19 +60,22 @@ class ExpensesState extends State<Expenses>{
     );
   }
 
-  _datePicker(BuildContext context){
-    Future<DateTime> selectDate = DateUtils.selectDate(context,date);
-    selectDate.then((DateTime dt){
-      setState(() {
-        if(dt!=null)
-          date = dt;
-        _expensesList = ExpensesTrackDb.db.getAllExpensesByDate(DateUtils.formattedDate(date));
-      });
+  _refreshExpenses(){
+    setState(() {
+      _expensesList = ExpensesTrackDb.db.getAllExpensesByDate(DateUtils.formattedDate(_date));
     });
   }
 
-  _getExpensesList(){
-    return StreamBuilder<List<Expense>>(
+  _datePicker(BuildContext context){
+    Future<DateTime> selectDate = DateUtils.selectDate(context,_date);
+    selectDate.then((DateTime dt){
+      if(dt!=null)
+        _date = dt;
+      _refreshExpenses();
+    });
+  }
+
+  _getExpensesList() => StreamBuilder<List<Expense>>(
       stream: _expensesList.asStream(),
       builder: (BuildContext context,AsyncSnapshot<List<Expense>> snapshot){
         if(snapshot.hasError){
@@ -78,28 +98,92 @@ class ExpensesState extends State<Expenses>{
                 final Expense e = snapshot.data[index];
                 return Card(
                   child: Center(
-                    child: _tile(e),
-                  ),
-                );
-              }
-            );
+                  child: _tile(e),
+                ),
+              );
+            }
+          );
         }
         return Text("No Data Available");
       }
     );
-  }
 
-  _tile(Expense e) => ListTile(
-    title: Text("Rs. "+e.amount.toString()+"/-",
+  _tile(Expense expense) => ListTile(
+    contentPadding: EdgeInsets.only(left: 20,right: 0),
+    title: Text("Rs. "+expense.amount.toString()+"/-",
         style: TextStyle(
           fontWeight: FontWeight.w500,
           fontSize: 20,
         )),
-    subtitle: Text(e.notes),
+    subtitle: Text(expense.notes),
+    dense: true,
     leading: Icon(
-      Utils.getIcon(e.category),
+      Utils.getIcon(expense.category),
       color: Colors.blue[500],
     ),
+    trailing: PopupMenuButton(
+      onSelected: (selectedDropDownItem) => _handleSelection(selectedDropDownItem,expense),
+      itemBuilder: (BuildContext context) =>  [
+        new PopupMenuItem(
+          value: 0,
+          child: Row(
+            children: <Widget>[
+              Icon(
+                Icons.delete,
+              ),
+              Text(
+                " Delete",
+                style: TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          )
+        ),
+        new PopupMenuItem(
+          value: 1,
+          child: Row(
+            children: <Widget>[
+              Icon(
+                Icons.edit,
+              ),
+              Text(
+                " Edit",
+                style: TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          )
+        ),
+      ],
+    ),
+    onTap: (){
+
+    },
   );
 
+  _handleSelection(int value,Expense expense) {
+    switch(value){
+      case 0: ExpensesTrackDb.db.delete(expense.id);
+        _refreshExpenses();
+        Scaffold.of(context).showSnackBar(Utils.snackBar("Expense Deleted"));
+        break;
+      case 1:Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Scaffold(
+                  appBar: AppBar(
+                    title: Text(
+                      "Edit Expense",
+                    ),
+                  ),
+                  body: AddExpense(oldExpense: expense,),
+                ),
+              )
+             );
+            Scaffold.of(context).showSnackBar(Utils.snackBar("Expense Updated"));
+      break;
+    }
+  }
 }

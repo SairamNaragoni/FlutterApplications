@@ -6,10 +6,10 @@ import 'views/add_expense.dart';
 class ExpensesTrackHome extends StatefulWidget {
   ExpensesTrackHome({Key key}) : super(key: key);
   @override
-  _ExpensesTrackHomeState createState() => _ExpensesTrackHomeState();
+  ExpensesTrackHomeState createState() => ExpensesTrackHomeState();
 }
 
-class _ExpensesTrackHomeState extends State<ExpensesTrackHome> {
+class ExpensesTrackHomeState extends State<ExpensesTrackHome> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
@@ -20,7 +20,7 @@ class _ExpensesTrackHomeState extends State<ExpensesTrackHome> {
       case 2: return Summary();
     }
   }
-  void _onItemTapped(int index) {
+  void onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
@@ -29,30 +29,34 @@ class _ExpensesTrackHomeState extends State<ExpensesTrackHome> {
   Widget build(BuildContext context) {
       return Scaffold(
       appBar: AppBar(
-        title: const Text('Expenses Track' , style: optionStyle),
+        title: const Text(
+          "Expenses Track",
+          style: optionStyle
+        ),
         titleSpacing: 25,
         elevation: 0.7,
       ),
       body: _getView(context),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.date_range),
-              title: Text('Expenses'),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.add_circle),
-              title: Text('Add'),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.assessment),
-              title: Text('Summary'),
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.indigo,
-          onTap: _onItemTapped,
-        ),
-      );
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.monetization_on),
+            title: Text('Expenses'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle),
+            title: Text('Add Expense'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assessment),
+            title: Text('Summary'),
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.indigo,
+        onTap: onItemTapped,
+      ),
+    );
   }
+
 }

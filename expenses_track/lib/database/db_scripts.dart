@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:expenses_track/model/expense.dart';
+import 'package:expenses_track/model/graph.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ExpensesTrackDb{
-  static final categories = ['food','entertainment','shopping','household','travel','investments','transfers','others'];
+  static final _categories = ['food','entertainment','shopping','household','travel','investments','transfers','others'];
   ExpensesTrackDb._();
   static final ExpensesTrackDb db = ExpensesTrackDb._();
   static Database _database;
@@ -28,52 +29,60 @@ class ExpensesTrackDb{
           await db.execute('CREATE TABLE expenses(id INTEGER PRIMARY KEY,amount REAL,date TEXT,category TEXT,notes TEXT)');
           await db.execute('CREATE TABLE categories(id INTEGER PRIMARY KEY,category TEXT)');
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [1000, '2019-12-29', "Food","KFC"]
+              [1000, '2020-01-01', "Food","KFC"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [100, '2019-12-29', "Food","MCD"]
+              [100, '2020-01-02', "Food","MCD"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [ 800, '2019-12-29', "Entertainment","Movie"]
+              [ 800, '2020-01-03', "Entertainment","Movie"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [ 2000, '2019-12-29', "Investments","Mutual Funds"]
+              [ 2000, '2020-01-04', "Investments","Mutual Funds"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [1000, '2019-12-29', "Shopping","Levis"]
+              [1000, '2020-01-05', "Shopping","Levis"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [10000, '2019-12-29', "Travel","GOA"]
+              [1000, '2020-01-06', "Travel","GOA"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [8000, '2019-12-29', "Travel","Gokarna"]
+              [800, '2020-01-06', "Travel","Gokarna"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [50000, '2019-12-29', "Transfers","Dad"]
+              [1200, '2020-01-06', "Transfers","Dad"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [100, '2019-12-29', "Others","Bday"]
+              [100, '2020-01-06', "Others","Bday"]
           );
-          for(int i =0;i<categories.length;i++){
-            await db.execute('INSERT INTO categories(id,category) VALUES(?,?)',[i+1,categories[i]]);
+          for(int i =0;i<_categories.length;i++){
+            await db.execute('INSERT INTO categories(id,category) VALUES(?,?)',[i+1,_categories[i]]);
           }
-          print('Database Created and Categories Inserted');
         },
     );
   }
 
   Future<List<Expense>> getAllExpenses() async {
     final db = await database;
-    List<Map> results = await db.query("expenses");
+    List<Map> results = await db.query("expenses",orderBy: "date");
     List<Expense> expenses = new List();
     results.forEach((result){
       expenses.add(Expense.fromMap(result));
     });
     return expenses;
   }
+  Future<List<Graph>> getAllExpensesGroupedByDate() async {
+    final db = await database;
+    List<Map> results = await db.rawQuery("SELECT date,SUM(amount) as total FROM expenses GROUP BY date");
+    List<Graph> points = new List();
+    results.forEach((result){
+      points.add(Graph.fromMap(result));
+    });
+    return points;
+  }
+  
 
   Future<List<Expense>> getAllExpensesByDate(String date) async{
-    print('Getting all expenses on : '+date);
     final db = await database;
     List <Map> results = await db.query("expenses",where:"date = ?",whereArgs: [date]);
     List<Expense> expenses = new List();
@@ -84,17 +93,15 @@ class ExpensesTrackDb{
     return expenses;
   }
 
-  Future<Expense> insertExpense(Expense expense) async{
+  insertExpense(Expense expense) async{
     final db = await database;
-    var maxIdResult = await db.rawQuery(
-        'SELECT MAX(id)+1 as last_inserted_id FROM expenses'
+//    var maxIdResult = await db.rawQuery(
+//        'SELECT MAX(id)+1 as last_inserted_id FROM expenses'
+//    );
+//    var id = maxIdResult.first['last_inserted_id'];
+    await db.rawInsert('INSERT INTO expenses (amount, date, category,notes) VALUES (?, ?, ?, ?)',
+        [expense.amount, expense.formattedDate, expense.category,expense.notes]
     );
-    var id = maxIdResult.first['last_inserted_id'];
-    var result = await db.rawInsert('INSERT Into expenses (id, amount, date, category,notes) VALUES (?, ?, ?, ?, ?)',
-        [ id, expense.amount, expense.date.toString(), expense.category,expense.notes]
-    );
-    print('Iserting Expenses'+ result.toString());
-    return Expense(id,expense.amount,expense.date,expense.category,expense.notes);
   }
 
   update(Expense expense) async {
@@ -108,6 +115,21 @@ class ExpensesTrackDb{
   delete(int id) async {
     final db = await database;
     db.delete("expenses", where: "id = ?", whereArgs: [id]);
+  }
+
+  Future<List<String>> getAllCategories() async {
+    final db = await database;
+    List<Map> results = await db.query("categories");
+    List<String> categories = new List();
+    results.forEach((result){
+      categories.add(result['category']);
+    });
+    return categories;
+  }
+
+  insertCategory(String newCategory) async{
+    final db = await database;
+    await db.rawInsert('INSERT INTO categories (category) VALUES(?)',[newCategory]);
   }
 
 }

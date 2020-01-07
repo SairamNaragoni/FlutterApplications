@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DateUtils{
-  static DateTime date = DateTime.now();
-  static Future<Null> selectDate(BuildContext context) async{
-    final DateTime _selected = await showDatePicker(
+  static Future<DateTime> selectDate(BuildContext context,DateTime initialDate) async{
+    return await showDatePicker(
       context: context,
-      initialDate: date,
+      initialDate: initialDate == null ? DateTime.now() : initialDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    if(_selected != null && _selected != date)
-        date = _selected;
-    }
+  }
+  static String formattedDate(DateTime date){
+    var formatter = new DateFormat('yyyy-MM-dd');
+    return formatter.format(date);
+  }
 }

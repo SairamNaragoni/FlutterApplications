@@ -1,4 +1,5 @@
 import 'package:expenses_track/views/expenses.dart';
+import 'package:expenses_track/views/summary.dart';
 import 'package:flutter/material.dart';
 import 'views/add_expense.dart';
 
@@ -12,11 +13,11 @@ class _ExpensesTrackHomeState extends State<ExpensesTrackHome> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
-  Widget _getView(){
+  Widget _getView(BuildContext context){
     switch(_selectedIndex){
-      case 0: return Expenses().getSummaryView();
+      case 0: return Expenses();
       case 1: return AddExpense();
-      case 2: return Text('Under Progress !!');
+      case 2: return Summary();
     }
   }
   void _onItemTapped(int index) {
@@ -32,20 +33,20 @@ class _ExpensesTrackHomeState extends State<ExpensesTrackHome> {
         titleSpacing: 25,
         elevation: 0.7,
       ),
-      body: _getView(),
+      body: _getView(context),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.assessment),
-              title: Text('Summary'),
+              icon: Icon(Icons.date_range),
+              title: Text('Expenses'),
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.add_circle),
               title: Text('Add'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              title: Text('Calender'),
+              icon: Icon(Icons.assessment),
+              title: Text('Summary'),
             ),
           ],
           currentIndex: _selectedIndex,

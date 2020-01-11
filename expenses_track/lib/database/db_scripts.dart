@@ -30,31 +30,31 @@ class ExpensesTrackDb{
           await db.execute('CREATE TABLE expenses(id INTEGER PRIMARY KEY,amount REAL,date TEXT,category TEXT,notes TEXT)');
           await db.execute('CREATE TABLE categories(id INTEGER PRIMARY KEY,category TEXT)');
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [1000, '2020-01-04', "Food","KFC"]
+              [1000, '2020-01-08', "Food","KFC"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [100, '2020-01-04', "Food","MCD"]
+              [100, '2020-01-08', "Food","MCD"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [ 800, '2020-01-04', "Entertainment","Movie"]
+              [ 800, '2020-01-08', "Entertainment","Movie"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [ 200, '2020-01-05', "Investments","Mutual Funds"]
+              [ 200, '2020-01-09', "Investments","Mutual Funds"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [1000, '2020-01-05', "Shopping","Levis"]
+              [1000, '2020-01-09', "Shopping","Levis"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [1000, '2020-01-06', "Travel","GOA"]
+              [1000, '2020-01-09', "Travel","GOA"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [800, '2020-01-07', "Travel","Gokarna"]
+              [800, '2020-01-10', "Travel","Gokarna"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [1200, '2020-01-07', "Transfers","Dad"]
+              [1200, '2020-01-10', "Transfers","Dad"]
           );
           await db.execute('INSERT INTO expenses (amount,date,category,notes) values (?, ?, ?, ?)',
-              [100, '2020-01-08', "Others","Bday"]
+              [100, '2020-01-10', "Others","Bday"]
           );
           for(int i =0;i<_categories.length;i++){
             await db.execute('INSERT INTO categories(id,category) VALUES(?,?)',[i+1,_categories[i]]);
@@ -75,7 +75,17 @@ class ExpensesTrackDb{
 
   Future<List<Graph>> getAllExpensesGroupedByDate() async {
     final db = await database;
-    List<Map> results = await db.rawQuery("SELECT date,SUM(amount) as total FROM expenses GROUP BY date");
+    List<Map> results = await db.rawQuery("SELECT date as x,SUM(amount) as y FROM expenses GROUP BY date");
+    List<Graph> points = new List();
+    results.forEach((result){
+      points.add(Graph.fromMap(result));
+    });
+    return points;
+  }
+
+  Future<List<Graph>> getAllExpensesGroupedByCategory() async{
+    final db = await database;
+    List<Map> results = await db.rawQuery("SELECT category as x,SUM(amount) as y FROM expenses GROUP BY category");
     List<Graph> points = new List();
     results.forEach((result){
       points.add(Graph.fromMap(result));

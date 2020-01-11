@@ -5,8 +5,13 @@ class Graph{
 
   factory Graph.fromMap(Map<dynamic,dynamic> m){
     return Graph(
-      DateTime.parse(m['date']),
-      m['total']
+      m['x'],
+      m['y']
     );
+  }
+
+  @override
+  String toString() {
+    return 'Graph{x: $x, y: $y}';
   }
 }
